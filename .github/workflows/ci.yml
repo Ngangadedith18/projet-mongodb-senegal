@@ -1,0 +1,99 @@
+# ══════════════════════════════════════════════════════════════
+# Pipeline CI/CD — Projet MongoDB Alimentation Sénégal
+# Déclencheur : push et pull_request sur la branche main
+# ══════════════════════════════════════════════════════════════
+
+name: CI — Tests & Qualité du code
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  # ── Job 1 : Analyse de qualité du code ──────────────────────
+  qualite:
+    name: Analyse pylint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code source
+        uses: actions/checkout@v4
+
+      - name: Installation de Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Installation des dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pylint
+
+      - name: Analyse pylint — app.py
+        run: pylint app.py --fail-under=9.0
+
+      - name: Analyse pylint — db.py
+        run: pylint db.py --fail-under=9.0
+
+  # ── Job 2 : Tests unitaires avec pytest ─────────────────────
+  tests:
+    name: Tests unitaires
+    runs-on: ubuntu-latest
+
+    # Service MongoDB lancé automatiquement par GitHub Actions
+    services:
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Récupération du code source
+        uses: actions/checkout@v4
+
+      - name: Installation de Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Installation des dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Import du dataset de test
+        run: python import_data.py
+
+      - name: Exécution des tests pytest
+        run: pytest tests/ -v --tb=short
+
+  # ── Job 3 : Vérification de la structure du projet ──────────
+  structure:
+    name: Vérification structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code source
+        uses: actions/checkout@v4
+
+      - name: Vérification des fichiers obligatoires
+        run: |
+          echo "Vérification des fichiers du projet..."
+          test -f app.py             && echo "✅ app.py"             || (echo "❌ app.py manquant"       && exit 1)
+          test -f db.py              && echo "✅ db.py"              || (echo "❌ db.py manquant"        && exit 1)
+          test -f import_data.py     && echo "✅ import_data.py"     || (echo "❌ import_data.py manquant" && exit 1)
+          test -f requirements.txt   && echo "✅ requirements.txt"   || (echo "❌ requirements.txt manquant" && exit 1)
+          test -f README.md          && echo "✅ README.md"          || (echo "❌ README.md manquant"   && exit 1)
+          test -f templates/index.html && echo "✅ templates/index.html" || (echo "❌ index.html manquant" && exit 1)
+          test -f static/style.css   && echo "✅ static/style.css"  || (echo "❌ style.css manquant"   && exit 1)
+          echo "✅ Structure du projet valide !"
