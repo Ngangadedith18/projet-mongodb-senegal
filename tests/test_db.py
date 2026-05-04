@@ -1,10 +1,9 @@
 """
-tests/test_db.py — Tests unitaires des 10 requêtes MongoDB.
-Nécessite que MongoDB soit accessible sur localhost:27017
-et que le dataset ait été importé via import_data.py.
+tests/test_db.py — Tests unitaires des 10 requetes MongoDB.
+Necessite que MongoDB soit accessible sur localhost:27017
+et que le dataset ait ete importe via import_data.py.
 """
 
-import pytest
 from db import q1, q2, q3, q4, q5, q6, q7, q8, q9, q10
 
 
@@ -18,9 +17,8 @@ def test_q1_retourne_une_liste():
 
 
 def test_q1_restaurants_sont_a_dakar():
-    """Q1 doit retourner uniquement des restaurants de Dakar."""
-    results = q1()
-    assert len(results) > 0, "Aucun restaurant trouvé à Dakar"
+    """Q1 doit retourner au moins un restaurant a Dakar."""
+    assert len(q1()) > 0
 
 
 def test_q1_contient_champs_attendus():
@@ -31,13 +29,13 @@ def test_q1_contient_champs_attendus():
 
 
 def test_q1_trie_par_note_decroissante():
-    """Q1 : les restaurants doivent être triés par note décroissante."""
+    """Q1 : les restaurants doivent etre tries par note decroissante."""
     notes = [doc["note_moyenne"] for doc in q1()]
     assert notes == sorted(notes, reverse=True)
 
 
 # ══════════════════════════════════════════════════════════════
-# Q2 — Total dépensé par client
+# Q2 — Total depense par client
 # ══════════════════════════════════════════════════════════════
 
 def test_q2_retourne_une_liste():
@@ -54,13 +52,13 @@ def test_q2_contient_champs_attendus():
 
 
 def test_q2_total_positif():
-    """Q2 : le total dépensé doit être positif."""
+    """Q2 : le total depense doit etre positif."""
     for doc in q2():
         assert doc["total_depense"] > 0
 
 
 # ══════════════════════════════════════════════════════════════
-# Q3 — Top 3 plats les plus commandés
+# Q3 — Top 3 plats les plus commandes
 # ══════════════════════════════════════════════════════════════
 
 def test_q3_retourne_au_plus_3_resultats():
@@ -76,7 +74,7 @@ def test_q3_contient_champs_attendus():
 
 
 def test_q3_quantite_positive():
-    """Q3 : la quantité totale doit être positive."""
+    """Q3 : la quantite totale doit etre positive."""
     for doc in q3():
         assert doc["quantite_totale"] > 0
 
@@ -91,7 +89,7 @@ def test_q4_retourne_une_liste():
 
 
 def test_q4_pourcentages_somme_100():
-    """Q4 : la somme des pourcentages doit être proche de 100%."""
+    """Q4 : la somme des pourcentages doit etre proche de 100%."""
     total_pct = sum(doc["pourcentage"] for doc in q4())
     assert abs(total_pct - 100) < 0.5, f"Somme des pourcentages = {total_pct}"
 
@@ -105,7 +103,7 @@ def test_q4_contient_champs_attendus():
 
 
 # ══════════════════════════════════════════════════════════════
-# Q5 — Clients ayant commandé tofu ET poisson
+# Q5 — Clients ayant commande tofu ET poisson
 # ══════════════════════════════════════════════════════════════
 
 def test_q5_retourne_une_liste():
@@ -114,7 +112,7 @@ def test_q5_retourne_une_liste():
 
 
 def test_q5_contient_nom_client():
-    """Q5 : chaque résultat doit avoir un nom_client."""
+    """Q5 : chaque resultat doit avoir un nom_client non vide."""
     for doc in q5():
         assert "nom_client" in doc
         assert len(doc["nom_client"]) > 0
@@ -130,7 +128,7 @@ def test_q6_retourne_une_liste():
 
 
 def test_q6_contient_trois_facettes():
-    """Q6 : le résultat doit contenir les 3 facettes."""
+    """Q6 : le resultat doit contenir les 3 facettes attendues."""
     result = q6()
     assert len(result) > 0
     doc = result[0]
@@ -140,13 +138,13 @@ def test_q6_contient_trois_facettes():
 
 
 def test_q6_top3_au_plus_3_clients():
-    """Q6 : top3_clients doit contenir au plus 3 entrées."""
+    """Q6 : top3_clients doit contenir au plus 3 entrees."""
     doc = q6()[0]
     assert len(doc["top3_clients"]) <= 3
 
 
 # ══════════════════════════════════════════════════════════════
-# Q7 — Restaurants les plus proches (géospatial)
+# Q7 — Restaurants les plus proches (geospatial)
 # ══════════════════════════════════════════════════════════════
 
 def test_q7_retourne_au_plus_2_restaurants():
@@ -155,14 +153,14 @@ def test_q7_retourne_au_plus_2_restaurants():
 
 
 def test_q7_contient_distance():
-    """Q7 : chaque résultat doit avoir un champ distance_metres."""
+    """Q7 : chaque resultat doit avoir un champ distance_metres positif."""
     for doc in q7():
         assert "distance_metres" in doc
         assert doc["distance_metres"] >= 0
 
 
 def test_q7_trie_par_distance():
-    """Q7 : les restaurants doivent être triés par distance croissante."""
+    """Q7 : les restaurants doivent etre tries par distance croissante."""
     distances = [doc["distance_metres"] for doc in q7()]
     assert distances == sorted(distances)
 
@@ -186,28 +184,25 @@ def test_q8_contient_champs_attendus():
 
 
 def test_q8_nb_commandes_positif():
-    """Q8 : le nombre de commandes doit être positif."""
+    """Q8 : le nombre de commandes doit etre positif."""
     for doc in q8():
         assert doc["nb_commandes"] > 0
 
 
 # ══════════════════════════════════════════════════════════════
-# Q9 — Commandes avec plat végétarien ou vegan
+# Q9 — Commandes avec plat vegetarien ou vegan
 # ══════════════════════════════════════════════════════════════
 
-def test_q9_retourne_un_nombre():
-    """Q9 doit retourner un comptage."""
-    result = q9()
-    assert isinstance(result, list)
-    if result:
-        assert "nb_commandes_veg" in result[0]
+def test_q9_retourne_une_liste():
+    """Q9 doit retourner une liste."""
+    assert isinstance(q9(), list)
 
 
 def test_q9_nombre_positif_ou_zero():
-    """Q9 : le nombre de commandes végétariennes doit être >= 0."""
+    """Q9 : le nombre de commandes vegetariennes doit etre >= 0."""
     result = q9()
-    nb = result[0]["nb_commandes_veg"] if result else 0
-    assert nb >= 0
+    nb_val = result[0]["nb_commandes_veg"] if result else 0
+    assert nb_val >= 0
 
 
 # ══════════════════════════════════════════════════════════════
@@ -227,6 +222,6 @@ def test_q10_contient_champs_attendus():
 
 
 def test_q10_prix_positif():
-    """Q10 : le prix de chaque recommandation doit être positif."""
+    """Q10 : le prix de chaque recommandation doit etre positif."""
     for doc in q10():
         assert doc["prix"] > 0
