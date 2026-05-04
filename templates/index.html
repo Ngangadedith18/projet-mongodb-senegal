@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MongoDB — Alimentation Sénégal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────── -->
+<header>
+  <div class="badge">
+    Mini-Projet MongoDB
+  </div>
+  <h1>Alimentation &amp; <span>Gastronomie</span><br>Sénégal</h1>
+  <p>10 requêtes d'agrégation &middot; Flask + PyMongo &middot; Base : alimentation_senegal</p>
+</header>
+
+<div class="wrapper">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────── -->
+  <aside class="sidebar">
+    <h3><i class="fa-solid fa-list-ul"></i> &nbsp;Questions</h3>
+
+    <button class="nav-btn active" onclick="showPanel(0)">
+      <span class="num"><i class="fa-solid fa-house"></i></span> Accueil
+    </button>
+    <button class="nav-btn" onclick="showPanel(1)">
+      <span class="num">1</span>
+        Restaurants &amp; plats
+    </button>
+    <button class="nav-btn" onclick="showPanel(2)">
+      <span class="num">2</span>
+        Dépenses clients
+    </button>
+    <button class="nav-btn" onclick="showPanel(3)">
+      <span class="num">3</span>
+       Top 3 plats
+    </button>
+    <button class="nav-btn" onclick="showPanel(4)">
+      <span class="num">4</span>
+       Modes de paiement
+    </button>
+    <button class="nav-btn" onclick="showPanel(5)">
+      <span class="num">5</span>
+       Tofu &amp; Poisson
+    </button>
+    <button class="nav-btn" onclick="showPanel(6)">
+      <span class="num">6</span>
+       Dashboard $facet
+    </button>
+    <button class="nav-btn" onclick="showPanel(7)">
+      <span class="num">7</span>
+       Géolocalisation
+    </button>
+    <button class="nav-btn" onclick="showPanel(8)">
+      <span class="num">8</span>
+       Stats livreurs
+    </button>
+    <button class="nav-btn" onclick="showPanel(9)">
+      <span class="num">9</span>
+       Régimes alimentaires
+    </button>
+    <button class="nav-btn" onclick="showPanel(10)">
+      <span class="num">10</span>
+       Recommandations
+    </button>
+  </aside>
+
+  <!-- ── MAIN ─────────────────────────────────────── -->
+  <main class="main">
+
+    <!-- ACCUEIL -->
+    <div id="panel-0" class="panel active">
+      <div class="intro-card">
+        <h2><i class="fa-solid fa-database"></i> Présentation du projet</h2>
+        <p>Cette application analyse les données de restauration et de livraison de plats traditionnels sénégalais. Elle interroge une base MongoDB composée de 5 collections et répond à 10 questions d'agrégation avancées.</p>
+        <div class="stats-row">
+          <div class="stat">
+            <i class="fa-solid fa-store"></i>
+            <div class="val">4</div><div class="lbl">Restaurants</div>
+          </div>
+          <div class="stat">
+            <i class="fa-solid fa-bowl-food"></i>
+            <div class="val">5</div><div class="lbl">Plats</div>
+          </div>
+          <div class="stat">
+            <i class="fa-solid fa-users"></i>
+            <div class="val">4</div><div class="lbl">Clients</div>
+          </div>
+          <div class="stat">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <div class="val">4</div><div class="lbl">Commandes</div>
+          </div>
+          <div class="stat">
+            <i class="fa-solid fa-motorcycle"></i>
+            <div class="val">3</div><div class="lbl">Livreurs</div>
+          </div>
+        </div>
+      </div>
+      <div class="intro-card">
+        <h2><i class="fa-solid fa-circle-info"></i> Collections MongoDB</h2>
+        <p>La base <strong>alimentation_senegal</strong> contient : <code>restaurants</code>, <code>plats</code>, <code>clients</code>, <code>commandes</code>, <code>livreurs</code>. Sélectionne une question dans le menu pour lancer la requête et afficher les résultats.</p>
+      </div>
+    </div>
+
+    <!-- Q1 -->
+    <div id="panel-1" class="panel">
+      <div class="panel-header">
+        <span class="q-badge">Q1</span>
+        <h2>Restaurants de Dakar avec leurs plats, triés par note décroissante.</h2>
+      </div>
+      <div class="panel-body">
+        <button class="load-btn" onclick="load(1, renderQ1)">
+          <i class="fa-solid fa-play"></i> Lancer la requête
+        </button>
+        <div class="result-area" id="res-1"></div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div id="panel-2" class="panel">
+      <div class="panel-header">
+        <span class="q-badge">Q2</span>
+        <h2>Total dépensé, nombre de commandes et moyenne par client (commandes livrées).</h2>
+      </div>
+      <div class="panel-body">
+        <button class="load-btn" onclick="load(2, renderQ2)">
+          <i class="fa-solid fa-play"></i> Lancer la requête
+        </button>
+        <div class="result-area" id="res-2"></div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div id="panel-3" class="panel">
+      <div class="panel-header">
+        <span class="q-badge">Q3</span>
+        <h2>Top 3 plats les plus commandés avec quantité totale et prix moyen.</h2>
+      </div>
+      <div class="panel-body">
+        <button class="load-btn" onclick="load(3, renderQ3)">
+          <i class="fa-solid fa-play"></i> Lancer la requête
+        </button>
+        <div class="result-area" id="res-3"></div>
+      </div>
+    </div>
+
+    <!-- Q4 -->
+    <div id="panel-4" class="panel">
+      <div class="panel-header">
+        <span class="q-badge">Q4</span>
+        <h2>Revenu par mode de paiement et pourcentage du chiffre d'affaires (commandes livrées).</h2>
+      </div>
+      <div class="panel-body">
+        <button class="load-btn" onclick="load(4, renderQ4)">
+          <i class="fa-solid fa-play"></i> Lancer la requête
+        </button>
+        <div class="result-area" id="res-4"></div>
+      </div>
+    </div>
+
+    <!-- Q5 -->
+    <div id="panel-5" class="panel">
+      <div class="panel-header">
+        <span class="q-badge">Q5</span>
+        <h2>Clients ayant commandé un plat avec tofu ET un plat avec poisson (commandes différentes).</h2>
+      </div>
+      <div class="panel-body">
+        <button class="load-btn" onclick="load(5, renderQ5)">
+          <i class="fa-solid fa-play"></i> Lancer la requête
+        </button>
+        <div class="result-area" id="res-5"></div>
+      </div>
+    </div>
+
+    <!-- Q6 -->
+    <div id="panel-6" class="panel">
+      <div class="panel-header">
+        <span class="q-badge">Q6</span>
+        <h2>Dashboard $facet : statuts des commandes + CA mensuel + top 3 clients fidèles.</h2>
+      </div>
+      <div class="panel-body">
+        <button class="load-btn" onclick="load(6, renderQ6)">
+          <i class="fa-solid fa-play"></i> Lancer la requête
+        </button>
+        <div class="result-area" id="res-6"></div>
+      </div>
+    </div>
+
+    <!-- Q7 -->
+    <div id="panel-7" class="panel">
+      <div class="panel-header">
+        <span class="q-badge">Q7</span>
+        <h2>Les 2 restaurants les plus proches d'Ousmane Sarr (coordonnées -17.480, 14.720).</h2>
+      </div>
+      <div class="panel-body">
+        <button class="load-btn" onclick="load(7, renderQ7)">
+          <i class="fa-solid fa-play"></i> Lancer la requête
+        </button>
+        <div class="result-area" id="res-7"></div>
+      </div>
+    </div>
+
+    <!-- Q8 -->
+    <div id="panel-8" class="panel">
+      <div class="panel-header">
+        <span class="q-badge">Q8</span>
+        <h2>Stats par livreur : nombre de commandes livrées, délai moyen et note moyenne.</h2>
+      </div>
+      <div class="panel-body">
+        <button class="load-btn" onclick="load(8, renderQ8)">
+          <i class="fa-solid fa-play"></i> Lancer la requête
+        </button>
+        <div class="result-area" id="res-8"></div>
+      </div>
+    </div>
+
+    <!-- Q9 -->
+    <div id="panel-9" class="panel">
+      <div class="panel-header">
+        <span class="q-badge">Q9</span>
+        <h2>Nombre de commandes contenant au moins un plat végétarien ou vegan.</h2>
+      </div>
+      <div class="panel-body">
+        <button class="load-btn" onclick="load(9, renderQ9)">
+          <i class="fa-solid fa-play"></i> Lancer la requête
+        </button>
+        <div class="result-area" id="res-9"></div>
+      </div>
+    </div>
+
+    <!-- Q10 -->
+    <div id="panel-10" class="panel">
+      <div class="panel-header">
+        <span class="q-badge"><i class="fa-solid fa-star"></i> Q10</span>
+        <h2>Recommandations de plats pour Ousmane Sarr basées sur les clients de sa ville.</h2>
+      </div>
+      <div class="panel-body">
+        <button class="load-btn" onclick="load(10, renderQ10)">
+          <i class="fa-solid fa-play"></i> Lancer la requête
+        </button>
+        <div class="result-area" id="res-10"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── Navigation ────────────────────────────────────────────────
+function showPanel(n) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + n).classList.add('active');
+  document.querySelectorAll('.nav-btn')[n].classList.add('active');
+}
+
+// ── Fetch générique ───────────────────────────────────────────
+async function load(q, renderFn) {
+  const btn  = document.querySelector(`#panel-${q} .load-btn`);
+  const area = document.getElementById('res-' + q);
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Chargement…';
+  btn.classList.add('loading');
+  btn.disabled = true;
+  area.innerHTML = '';
+  try {
+    const res = await fetch(`/api/q${q}`);
+    if (!res.ok) throw new Error('Erreur HTTP ' + res.status);
+    const data = await res.json();
+    renderFn(area, data);
+  } catch(e) {
+    area.innerHTML = `<div class="error"><i class="fa-solid fa-circle-exclamation"></i> ${e.message}</div>`;
+  } finally {
+    btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Relancer';
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function table(cols, rows) {
+  if (!rows.length) return '<div class="empty">Aucun résultat.</div>';
+  return `<table>
+    <thead><tr>${cols.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c ?? '—'}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table>`;
+}
+
+// ── Renderers ─────────────────────────────────────────────────
+function renderQ1(area, data) {
+  let html = '';
+  data.forEach(r => {
+    const plats = (r.plats || []).map(p =>
+      `<span class="tag"><i class="fa-solid fa-bowl-food"></i> ${p.nom} — ${p.prix} FCFA</span>`
+    ).join('');
+    html += `<div style="padding:.8rem 0;border-bottom:1px solid #eef4eb">
+      <strong>${r.nom}</strong> &nbsp;<i class="fa-solid fa-star" style="color:#f5a623"></i> ${r.note_moyenne}
+      <div style="margin-top:.4rem">${plats || '<span class="empty">Aucun plat</span>'}</div>
+    </div>`;
+  });
+  area.innerHTML = html || '<div class="empty">Aucun résultat.</div>';
+}
+
+function renderQ2(area, data) {
+  area.innerHTML = table(
+    ['Client', 'Total dépensé (FCFA)', 'Nb commandes', 'Moyenne/commande'],
+    data.map(d => [d.nom_client, d.total_depense?.toLocaleString(), d.nb_commandes, d.moyenne_commande?.toLocaleString()])
+  );
+}
+
+function renderQ3(area, data) {
+  area.innerHTML = table(
+    ['Plat', 'Quantité totale', 'Prix moyen (FCFA)'],
+    data.map(d => [d.nom_plat, d.quantite_totale, d.prix_moyen?.toLocaleString()])
+  );
+}
+
+function renderQ4(area, data) {
+  area.innerHTML = table(
+    ['Mode de paiement', 'Total (FCFA)', 'Part (%)'],
+    data.map(d => [d.mode, d.total?.toLocaleString(), d.pourcentage + ' %'])
+  );
+  const wrap = document.createElement('div');
+  wrap.className = 'chart-wrap';
+  const canvas = document.createElement('canvas');
+  wrap.appendChild(canvas);
+  area.appendChild(wrap);
+  new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: data.map(d => d.mode),
+      datasets: [{
+        data: data.map(d => d.total),
+        backgroundColor: ['#13aa52', '#e34c26', '#0a5a34'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { position: 'bottom' },
+        title: { display: true, text: 'Répartition du CA par mode de paiement' }
+      }
+    }
+  });
+}
+
+function renderQ5(area, data) {
+  if (!data.length) {
+    area.innerHTML = '<div class="empty">Aucun client correspondant.</div>';
+    return;
+  }
+  area.innerHTML = table(['Client'], data.map(d => [d.nom_client]));
+}
+
+function renderQ6(area, data) {
+  const d = data[0];
+  if (!d) { area.innerHTML = '<div class="empty">Aucun résultat.</div>'; return; }
+
+  let html = '<h3 style="margin-bottom:.6rem;color:var(--green)"><i class="fa-solid fa-chart-bar"></i> Répartition par statut</h3>';
+  html += table(['Statut', 'Nb commandes'], d.repartition_statuts.map(s => [s._id, s.count]));
+  html += '<h3 style="margin:1.2rem 0 .6rem;color:var(--green)"><i class="fa-solid fa-crown"></i> Top 3 clients fidèles</h3>';
+  html += table(['Client', 'Points fidélité'], d.top3_clients.map(c => [c.nom, c.points_fidelite]));
+  area.innerHTML = html;
+
+  const ca = d.ca_mensuel;
+  if (ca && ca.length) {
+    const wrap = document.createElement('div');
+    wrap.className = 'chart-wrap';
+    wrap.style.marginTop = '1.2rem';
+    const canvas = document.createElement('canvas');
+    wrap.appendChild(canvas);
+    area.appendChild(wrap);
+    const mois = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: ca.map(c => mois[(c._id?.mois || 1) - 1] + ' ' + c._id?.annee),
+        datasets: [{
+          label: 'CA mensuel (FCFA)',
+          data: ca.map(c => c.montant_total),
+          backgroundColor: '#13aa52',
+          borderRadius: 6
+        }]
+      },
+      options: {
+        plugins: { title: { display: true, text: "Chiffre d'affaires mensuel (commandes livrées)" } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  }
+}
+
+function renderQ7(area, data) {
+  area.innerHTML = table(
+    ['Restaurant', 'Distance (mètres)'],
+    data.map(d => [d.nom, Math.round(d.distance_metres).toLocaleString() + ' m'])
+  );
+}
+
+function renderQ8(area, data) {
+  area.innerHTML = table(
+    ['Livreur', 'Commandes livrées', 'Délai moyen (min)', 'Note moyenne'],
+    data.map(d => [d.nom_livreur, d.nb_commandes, d.delai_moyen, d.note_moyenne])
+  );
+}
+
+function renderQ9(area, data) {
+  const nb = data[0]?.nb_commandes_veg ?? 0;
+  area.innerHTML = `
+    <div style="font-size:2.5rem;font-family:'Playfair Display',serif;color:var(--green);margin:.5rem 0">
+      <i class="fa-solid fa-leaf" style="font-size:1.8rem;vertical-align:middle;margin-right:.4rem"></i>${nb}
+    </div>
+    <p style="color:var(--muted)">commande(s) contenant au moins un plat végétarien ou vegan.</p>`;
+}
+
+function renderQ10(area, data) {
+  if (!data.length) {
+    area.innerHTML = '<div class="empty">Aucune recommandation trouvée.</div>';
+    return;
+  }
+  let html = `<p style="color:var(--muted);margin-bottom:.8rem">
+    <i class="fa-solid fa-wand-magic-sparkles"></i>
+    Plats commandés par des clients dakarois mais jamais commandés par <strong>Ousmane Sarr</strong> :
+  </p>`;
+  html += table(['Plat recommandé', 'Prix (FCFA)'], data.map(d => [d.nom, d.prix?.toLocaleString()]));
+  area.innerHTML = html;
+}
+</script>
+</body>
+</html>
